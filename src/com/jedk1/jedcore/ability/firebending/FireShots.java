@@ -23,6 +23,7 @@ import com.projectkorra.projectkorra.Element.SubElement;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.Ability;
 import com.projectkorra.projectkorra.ability.AddonAbility;
+import com.projectkorra.projectkorra.ability.BlueFireAbility;
 import com.projectkorra.projectkorra.ability.FireAbility;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
@@ -63,6 +64,26 @@ public class FireShots extends FireAbility implements AddonAbility {
 		range = config.getInt("Abilities.Fire.FireShots.Range");
 		damage = config.getDouble("Abilities.Fire.FireShots.Damage");
 		collisionRadius = config.getDouble("Abilities.Fire.FireShots.CollisionRadius");
+		
+		applyModifiers(cooldown, damage, range);
+	}
+	
+	private void applyModifiers(long cooldown, double damage, double range) {
+		int damageMod = 0;
+		int rangeMod = 0;
+		long cooldownMod = 0;
+
+		damageMod = (int) (this.getDayFactor(damage) - damage);
+		rangeMod = (int) (this.getDayFactor(range) - range);
+
+		damageMod = (int) (bPlayer.canUseSubElement(SubElement.BLUE_FIRE) ? (BlueFireAbility.getDamageFactor() * damage - damage) + damageMod : damageMod);
+		rangeMod = (int) (bPlayer.canUseSubElement(SubElement.BLUE_FIRE) ? (BlueFireAbility.getRangeFactor() * range - range) + rangeMod : rangeMod);
+		cooldownMod = (long) (bPlayer.canUseSubElement(SubElement.BLUE_FIRE) ? (BlueFireAbility.getCooldownFactor() * cooldown - cooldown) + cooldown : cooldown);
+		
+		
+		this.range += rangeMod;
+		this.damage += damageMod;
+		this.cooldown += cooldownMod;
 	}
 	
 	public class FireShot {

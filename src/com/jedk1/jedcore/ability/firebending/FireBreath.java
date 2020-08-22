@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import com.jedk1.jedcore.JCMethods;
-import com.jedk1.jedcore.configuration.JedCoreConfig;
-import com.jedk1.jedcore.util.FireTick;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -18,11 +15,15 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.JedCore;
+import com.jedk1.jedcore.configuration.JedCoreConfig;
+import com.jedk1.jedcore.util.FireTick;
 import com.projectkorra.projectkorra.Element;
 import com.projectkorra.projectkorra.Element.SubElement;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
+import com.projectkorra.projectkorra.ability.BlueFireAbility;
 import com.projectkorra.projectkorra.ability.FireAbility;
 import com.projectkorra.projectkorra.firebending.BlazeArc;
 import com.projectkorra.projectkorra.util.DamageHandler;
@@ -92,6 +93,21 @@ public class FireBreath extends FireAbility implements AddonAbility {
 		bindMsg = config.getString("Abilities.Fire.FireBreath.RainbowBreath.EnabledMessage");
 		unbindMsg = config.getString("Abilities.Fire.FireBreath.RainbowBreath.DisabledMessage");
 		deniedMsg = config.getString("Abilities.Fire.FireBreath.RainbowBreath.NoAccess");
+		
+		applyModifiers(cooldown, range);
+	}
+	
+	private void applyModifiers(long cooldown, double range) {
+		int rangeMod = 0;
+		long cooldownMod = 0;
+
+		rangeMod = (int) (this.getDayFactor(range) - range);
+
+		cooldownMod = (long) (bPlayer.canUseSubElement(SubElement.BLUE_FIRE) ? (BlueFireAbility.getCooldownFactor() * cooldown - cooldown) + cooldown : cooldown);
+		rangeMod = (int) (bPlayer.canUseSubElement(SubElement.BLUE_FIRE) ? (BlueFireAbility.getRangeFactor() * range - range) + rangeMod : rangeMod);
+
+		this.range += rangeMod;
+		this.cooldown += cooldownMod;
 	}
 
 	@Override

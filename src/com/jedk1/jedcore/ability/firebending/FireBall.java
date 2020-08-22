@@ -1,13 +1,5 @@
 package com.jedk1.jedcore.ability.firebending;
 
-import com.jedk1.jedcore.collision.CollisionDetector;
-import com.jedk1.jedcore.collision.Sphere;
-import com.jedk1.jedcore.configuration.JedCoreConfig;
-import com.jedk1.jedcore.util.AirShieldReflector;
-import com.jedk1.jedcore.util.FireTick;
-import com.projectkorra.projectkorra.ability.CoreAbility;
-import com.projectkorra.projectkorra.ability.util.Collision;
-import com.projectkorra.projectkorra.airbending.AirShield;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -16,10 +8,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import com.jedk1.jedcore.JedCore;
+import com.jedk1.jedcore.collision.CollisionDetector;
+import com.jedk1.jedcore.collision.Sphere;
+import com.jedk1.jedcore.configuration.JedCoreConfig;
+import com.jedk1.jedcore.util.AirShieldReflector;
+import com.jedk1.jedcore.util.FireTick;
 import com.projectkorra.projectkorra.Element.SubElement;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
+import com.projectkorra.projectkorra.ability.BlueFireAbility;
+import com.projectkorra.projectkorra.ability.CoreAbility;
 import com.projectkorra.projectkorra.ability.FireAbility;
+import com.projectkorra.projectkorra.ability.util.Collision;
+import com.projectkorra.projectkorra.airbending.AirShield;
 import com.projectkorra.projectkorra.firebending.BlazeArc;
 import com.projectkorra.projectkorra.firebending.util.FireDamageTimer;
 import com.projectkorra.projectkorra.util.DamageHandler;
@@ -63,6 +64,22 @@ public class FireBall extends FireAbility implements AddonAbility {
 		controllable = config.getBoolean("Abilities.Fire.FireBall.Controllable");
 		fireTrail = config.getBoolean("Abilities.Fire.FireBall.FireTrail");
 		collisionRadius = config.getDouble("Abilities.Fire.FireBall.CollisionRadius");
+		
+		applyModifiers(damage, range);
+	}
+	
+	private void applyModifiers(double damage, double range) {
+		int damageMod = 0;
+		int rangeMod = 0;
+
+		damageMod = (int) (this.getDayFactor(damage) - damage);
+		rangeMod = (int) (this.getDayFactor(range) - range);
+
+		damageMod = (int) (bPlayer.canUseSubElement(SubElement.BLUE_FIRE) ? (BlueFireAbility.getDamageFactor() * damage - damage) + damageMod : damageMod);
+		rangeMod = (int) (bPlayer.canUseSubElement(SubElement.BLUE_FIRE) ? (BlueFireAbility.getRangeFactor() * range - range) + rangeMod : rangeMod);
+
+		this.range += rangeMod;
+		this.damage += damageMod;
 	}
 	
 	@Override
